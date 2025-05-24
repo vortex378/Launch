@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Speed Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a2e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 1s ease;
+    }
+
+    .welcome-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      background-color: #16213e;
+    }
+
+    .start-btn {
+      width: 200px;
+      height: 200px;
+      background-color: #0f3460;
+      color: white;
+      font-size: 20px;
+      border-radius: 50%;
+      border: 3px solid white;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+
+    .start-btn:hover {
+      background-color: #1a75ff;
+    }
+
+    .game-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .quote {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .result {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .scoreboard h2 {
+      margin-bottom: 10px;
+    }
+
+    .scoreboard li {
+      list-style-type: none;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #444;
+      margin-top: 20px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress {
+      width: 100%;
+      height: 100%;
+      background-color: #00ff00;
+      transition: width 1s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-screen">
+    <div class="start-btn" onclick="startGame()">Welcome! Click me to start!</div>
+  </div>
+
+  <div class="game-container" id="gameContainer">
+    <div class="quote" id="quote"></div>
+    <input type="text" id="input" placeholder="Start typing..." />
+    <div class="result" id="result"></div>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+    <div class="scoreboard">
+      <h2>Last 5 WPM Scores:</h2>
+      <ul id="scoreList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing fast is a superpower in the digital world.",
+      "Practice makes perfect, keep going!",
+      "Speed and accuracy are the keys to typing mastery.",
+      "Stay focused and beat your best time!"
+    ];
+
+    let startTime;
+    const input = document.getElementById('input');
+    const quoteEl = document.getElementById('quote');
+    const resultEl = document.getElementById('result');
+    const gameContainer = document.getElementById('gameContainer');
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    const scoreList = document.getElementById('scoreList');
+    const progressBar = document.getElementById('progress');
+
+    let lastFiveSpeeds = [];
+
+    function startGame() {
+      welcomeScreen.style.display = 'none';
+      gameContainer.style.display = 'flex';
+      setNewQuote();
+      input.focus();
+      changeBackground();
+    }
+
+    function setNewQuote() {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteEl.textContent = '';
+      let i = 0;
+      const interval = setInterval(() => {
+        quoteEl.textContent += randomQuote[i];
+        i++;
+        if (i === randomQuote.length) clearInterval(interval);
+      }, 100);
+      input.value = '';
+      resultEl.textContent = '';
+      startTime = new Date().getTime();
+      progressBar.style.width = '100%';
+    }
+
+    function updateScoreboard(speed) {
+      lastFiveSpeeds.push(speed);
+      if (lastFiveSpeeds.length > 5) {
+        lastFiveSpeeds.shift();
+      }
+      scoreList.innerHTML = lastFiveSpeeds.map(s => `<li>${s} WPM</li>`).join('');
+    }
+
+    function changeBackground() {
+      document.body.style.backgroundColor = '#16213e';
+      setTimeout(() => {
+        document.body.style.background = 'linear-gradient(to right, #16213e, #0f3460)';
+      }, 500);
+    }
+
+    input.addEventListener('input', () => {
+      if (input.value === quoteEl.textContent) {
+        const endTime = new Date().getTime();
+        const timeTaken = (endTime - startTime) / 1000;
+        const words = quoteEl.textContent.split(' ').length;
+        const speed = Math.round((words / timeTaken) * 60);
+        resultEl.textContent = `Time: ${timeTaken.toFixed(2)}s | Speed: ${speed} WPM`;
+        updateScoreboard(speed);
+        setTimeout(setNewQuote, 2000);
+        progressBar.style.width = '0%';
+      }
+    });
+  </script>
+</body>
+</html>
